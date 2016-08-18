@@ -991,21 +991,21 @@ function stanford_capx_mapper_form_submit($form, $form_state) {
         foreach ($r as $id) {
           $profile_ids[] = $id->entity_id;
         }
-      }
-      $q = db_select('field_data_field_s_person_profile_picture', 'pp');
-      $q->addfield('pp', 'field_s_person_profile_picture_fid');
-      $q->condition('pp.entity_id', $profile_ids, 'IN');
-      $r = $q->execute()->fetchAll();
-      $fids = array();
-      if (!empty($r)) {
-        foreach ($r as $fid) {
-          $fids[] = (int) $fid->field_s_person_profile_picture_fid;
+        $q = db_select('field_data_field_s_person_profile_picture', 'pp');
+        $q->addfield('pp', 'field_s_person_profile_picture_fid');
+        $q->condition('pp.entity_id', $profile_ids, 'IN');
+        $r = $q->execute()->fetchAll();
+        $fids = array();
+        if (!empty($r)) {
+          foreach ($r as $fid) {
+            $fids[] = (int) $fid->field_s_person_profile_picture_fid;
+          }
+          $q = db_update('file_managed');
+          $q->fields(array('timestamp' => 0));
+          $q->condition('fid', $fids, 'IN');
+          $q->execute();
+          cache_clear_all('*', 'cache_image', TRUE);
         }
-        $q = db_update('file_managed');
-        $q->fields(array('timestamp' => 0));
-        $q->condition('fid', $fids, 'IN');
-        $q->execute();
-        cache_clear_all('*', 'cache_image', TRUE);
       }
     }
   }
